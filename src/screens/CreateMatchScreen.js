@@ -10,7 +10,7 @@ const FORMAT_TOTALS = {
   "11v11": 22,
 };
 
-export default function CreateMatchScreen({ route }) {
+export default function CreateMatchScreen({ route, navigation }) {
   const field = route?.params?.field;
   const initialFormat = route?.params?.format ?? "5v5";
 
@@ -165,7 +165,17 @@ export default function CreateMatchScreen({ route }) {
             pressed && styles.buttonPressed,
           ]}
           onPress={() => {
-            // Hook up match creation later
+            const roundedTotalPrice = Number(totalPrice.toFixed(2));
+            const roundedPricePerPlayer = Number(pricePerPlayer.toFixed(2));
+
+            navigation.navigate("MatchLobby", {
+              field,
+              format,
+              duration,
+              totalPlayers,
+              totalPrice: roundedTotalPrice,
+              pricePerPlayer: roundedPricePerPlayer,
+            });
           }}
         >
           <Text style={styles.primaryButtonText}>Create Match</Text>
