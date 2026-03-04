@@ -1,21 +1,39 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  TextInput,
-  Pressable,
-} from "react-native";
+import React, { useState, useMemo } from "react";
+import { View, Text, StyleSheet, StatusBar, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 
+const FORMAT_TOTALS = {
+  "5v5": 10,
+  "6v6": 12,
+  "7v7": 14,
+  "11v11": 22,
+};
+
+const DURATION_OPTIONS = [60, 90, 120];
+
 export default function CreateMatchScreen({ route }) {
   const field = route?.params?.field;
+  const initialFormat = route?.params?.format ?? "5v5";
+
   const fieldName = field?.name ?? "Selected field";
 
-  const [playersNeeded, setPlayersNeeded] = useState("10");
-  const [pricePerPlayer, setPricePerPlayer] = useState("");
+  const [format, setFormat] = useState(initialFormat);
+  const [duration, setDuration] = useState(60);
+
+  const { totalPlayers, totalPrice, pricePerPlayer } = useMemo(() => {
+    const totalPlayersComputed = FORMAT_TOTALS[format] ?? 10;
+    const pricePerHour = field?.pricePerHour ?? 0;
+    const totalPriceComputed = (pricePerHour * duration) / 60;
+    const perPlayer =
+      totalPlayersComputed > 0 ? totalPriceComputed / totalPlayersComputed : 0;
+
+    return {
+      totalPlayers: totalPlayersComputed,
+      totalPrice: totalPriceComputed,
+      pricePerPlayer: perPlayer,
+    };
+  }, [format, duration, field]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -45,35 +63,81 @@ export default function CreateMatchScreen({ route }) {
         <Text style={styles.fieldName}>{fieldName}</Text>
 
         <BlurView intensity={30} tint="dark" style={styles.cardBlur}>
+          <Text style={styles.cardTitle}>Match settings</Text>
+
           <View style={styles.section}>
-            <Text style={styles.label}>Match time</Text>
-            <Text style={styles.placeholder}>
-              Time picker coming soon (placeholder)
+            <Text style={styles.label}>Format</Text>
+            <View style={styles.chipsRow}>
+              {Object.keys(FORMAT_TOTALS).map((option) => {
+                const isActive = option === format;
+                return (
+                  <Pressable
+                    key={option}
+                    style={[
+                      styles.chip,
+                      isActive && styles.chipActive,
+                    ]}
+                    onPress={() => setFormat(option)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipLabel,
+                        isActive && styles.chipLabelActive,
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Duration</Text>
+            <View style={styles.chipsRow}>
+              {DURATION_OPTIONS.map((minutes) => {
+                const isActive = minutes === duration;
+                return (
+                  <Pressable
+                    key={minutes}
+                    style={[
+                      styles.chip,
+                      isActive && styles.chipActive,
+                    ]}
+                    onPress={() => setDuration(minutes)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipLabel,
+                        isActive && styles.chipLabelActive,
+                      ]}
+                    >
+                      {minutes}m
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Total players</Text>
+            <Text style={styles.valueText}>{totalPlayers}</Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Total price</Text>
+            <Text style={styles.valueText}>
+              € {totalPrice.toFixed(2)}
             </Text>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.label}>Players needed</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="number-pad"
-              value={playersNeeded}
-              onChangeText={setPlayersNeeded}
-              placeholder="10"
-              placeholderTextColor="#64748B"
-            />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Price per player (€)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="decimal-pad"
-              value={pricePerPlayer}
-              onChangeText={setPricePerPlayer}
-              placeholder="e.g. 8"
-              placeholderTextColor="#64748B"
-            />
+            <Text style={styles.label}>Price per player</Text>
+            <Text style={styles.valueText}>
+              € {pricePerPlayer.toFixed(2)}
+            </Text>
           </View>
         </BlurView>
 
@@ -128,7 +192,15 @@ const styles = StyleSheet.create({
     borderColor: "rgba(148,163,184,0.2)",
     backgroundColor: "rgba(15,23,42,0.4)",
     padding: 20,
-    gap: 20,
+    gap: 18,
+  },
+
+  cardTitle: {
+    color: "#E5E7EB",
+    fontSize: 14,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    marginBottom: 4,
   },
 
   section: {
@@ -142,21 +214,42 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  placeholder: {
-    color: "#9CA3AF",
-    fontSize: 13,
+  chipsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 6,
   },
 
-  input: {
-    marginTop: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(148,163,184,0.35)",
+  chip: {
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(148,163,184,0.4)",
+    backgroundColor: "rgba(15,23,42,0.9)",
+  },
+
+  chipActive: {
+    backgroundColor: "#22C55E",
+    borderColor: "#22C55E",
+  },
+
+  chipLabel: {
+    color: "#E5E7EB",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  chipLabelActive: {
+    color: "#0F172A",
+  },
+
+  valueText: {
     color: "#F9FAFB",
-    fontSize: 14,
-    backgroundColor: "rgba(15,23,42,0.8)",
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: 2,
   },
 
   primaryButton: {

@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
-export default function FieldsScreen({ navigation }) {
+export default function FieldsScreen({ navigation, route }) {
+  const initialFormat = route?.params?.format ?? "5v5";
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Select Field</Text>
@@ -10,7 +12,12 @@ export default function FieldsScreen({ navigation }) {
         style={styles.card}
         onPress={() =>
           navigation.navigate("FieldDetails", {
-            field: { name: "City Arena", meta: "5v5 • 2 km away" },
+            field: {
+              name: "City Arena",
+              meta: "5v5 • 2 km away",
+              pricePerHour: 80,
+            },
+            format: initialFormat,
           })
         }
       >
@@ -22,7 +29,12 @@ export default function FieldsScreen({ navigation }) {
         style={styles.card}
         onPress={() =>
           navigation.navigate("FieldDetails", {
-            field: { name: "Downtown Pitch", meta: "5v5 • 4 km away" },
+            field: {
+              name: "Downtown Pitch",
+              meta: "5v5 • 4 km away",
+              pricePerHour: 70,
+            },
+            format: initialFormat,
           })
         }
       >

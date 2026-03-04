@@ -109,7 +109,11 @@ export default function HomeScreen({ navigation }) {
           title="Friendly Match"
           desc="Invite friends and fill the 10 spots. Pay at the field."
           accent="rgba(34,197,94,0.25)"
-          onPress={() => navigation.navigate("Fields")}
+          onPress={() =>
+            navigation.navigate("Fields", {
+              format: "5v5",
+            })
+          }
         />
 
         <GlassCard
@@ -117,7 +121,11 @@ export default function HomeScreen({ navigation }) {
           title="Rival Match"
           desc="Invite 4 friends and wait for another team to accept."
           accent="rgba(249,115,22,0.25)"
-          onPress={() => navigation.navigate("Fields")}
+          onPress={() =>
+            navigation.navigate("Fields", {
+              format: "5v5",
+            })
+          }
         />
 
         {/* FOOTER NOTE */}

@@ -12,6 +12,7 @@ import { BlurView } from "expo-blur";
 
 export default function FieldDetailsScreen({ route, navigation }) {
   const field = route?.params?.field;
+  const format = route?.params?.format ?? "5v5";
 
   const name = field?.name ?? "Unknown field";
   const meta = field?.meta ?? "";
@@ -58,6 +59,7 @@ export default function FieldDetailsScreen({ route, navigation }) {
             onPress={() =>
               navigation.navigate("CreateMatch", {
                 field,
+                format,
               })
             }
           >
