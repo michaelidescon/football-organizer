@@ -10,16 +10,26 @@ const FORMAT_TOTALS = {
   "11v11": 22,
 };
 
-const DURATION_OPTIONS = [60, 90, 120];
-
 export default function CreateMatchScreen({ route }) {
   const field = route?.params?.field;
   const initialFormat = route?.params?.format ?? "5v5";
 
   const fieldName = field?.name ?? "Selected field";
 
-  const [format, setFormat] = useState(initialFormat);
-  const [duration, setDuration] = useState(60);
+  const allowedFormatsFromField = field?.allowedFormats?.length
+    ? field.allowedFormats
+    : Object.keys(FORMAT_TOTALS);
+
+  const allowedDurationsFromField = field?.allowedDurations?.length
+    ? field.allowedDurations
+    : [60, 90, 120];
+
+  const safeInitialFormat = allowedFormatsFromField.includes(initialFormat)
+    ? initialFormat
+    : allowedFormatsFromField[0];
+
+  const [format, setFormat] = useState(safeInitialFormat);
+  const [duration, setDuration] = useState(allowedDurationsFromField[0]);
 
   const { totalPlayers, totalPrice, pricePerPlayer } = useMemo(() => {
     const totalPlayersComputed = FORMAT_TOTALS[format] ?? 10;
@@ -67,58 +77,66 @@ export default function CreateMatchScreen({ route }) {
 
           <View style={styles.section}>
             <Text style={styles.label}>Format</Text>
-            <View style={styles.chipsRow}>
-              {Object.keys(FORMAT_TOTALS).map((option) => {
-                const isActive = option === format;
-                return (
-                  <Pressable
-                    key={option}
-                    style={[
-                      styles.chip,
-                      isActive && styles.chipActive,
-                    ]}
-                    onPress={() => setFormat(option)}
-                  >
-                    <Text
+            {allowedFormatsFromField.length > 1 ? (
+              <View style={styles.chipsRow}>
+                {allowedFormatsFromField.map((option) => {
+                  const isActive = option === format;
+                  return (
+                    <Pressable
+                      key={option}
                       style={[
-                        styles.chipLabel,
-                        isActive && styles.chipLabelActive,
+                        styles.chip,
+                        isActive && styles.chipActive,
                       ]}
+                      onPress={() => setFormat(option)}
                     >
-                      {option}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                      <Text
+                        style={[
+                          styles.chipLabel,
+                          isActive && styles.chipLabelActive,
+                        ]}
+                      >
+                        {option}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : (
+              <Text style={styles.valueText}>{format}</Text>
+            )}
           </View>
 
           <View style={styles.section}>
             <Text style={styles.label}>Duration</Text>
-            <View style={styles.chipsRow}>
-              {DURATION_OPTIONS.map((minutes) => {
-                const isActive = minutes === duration;
-                return (
-                  <Pressable
-                    key={minutes}
-                    style={[
-                      styles.chip,
-                      isActive && styles.chipActive,
-                    ]}
-                    onPress={() => setDuration(minutes)}
-                  >
-                    <Text
+            {allowedDurationsFromField.length > 1 ? (
+              <View style={styles.chipsRow}>
+                {allowedDurationsFromField.map((minutes) => {
+                  const isActive = minutes === duration;
+                  return (
+                    <Pressable
+                      key={minutes}
                       style={[
-                        styles.chipLabel,
-                        isActive && styles.chipLabelActive,
+                        styles.chip,
+                        isActive && styles.chipActive,
                       ]}
+                      onPress={() => setDuration(minutes)}
                     >
-                      {minutes}m
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                      <Text
+                        style={[
+                          styles.chipLabel,
+                          isActive && styles.chipLabelActive,
+                        ]}
+                      >
+                        {minutes}m
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : (
+              <Text style={styles.valueText}>{duration}m</Text>
+            )}
           </View>
 
           <View style={styles.section}>

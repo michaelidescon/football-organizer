@@ -1,6 +1,25 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
+const FIELDS = [
+  {
+    id: "city-arena",
+    name: "City Arena",
+    meta: "5v5 • 2 km away",
+    pricePerHour: 80,
+    allowedFormats: ["5v5", "6v6"],
+    allowedDurations: [60, 90],
+  },
+  {
+    id: "downtown-pitch",
+    name: "Downtown Pitch",
+    meta: "5v5 • 4 km away",
+    pricePerHour: 70,
+    allowedFormats: ["5v5", "7v7", "11v11"],
+    allowedDurations: [60, 120],
+  },
+];
+
 export default function FieldsScreen({ navigation, route }) {
   const initialFormat = route?.params?.format ?? "5v5";
 
@@ -8,39 +27,32 @@ export default function FieldsScreen({ navigation, route }) {
     <View style={styles.container}>
       <Text style={styles.title}>Select Field</Text>
 
-      <Pressable
-        style={styles.card}
-        onPress={() =>
-          navigation.navigate("FieldDetails", {
-            field: {
-              name: "City Arena",
-              meta: "5v5 • 2 km away",
-              pricePerHour: 80,
-            },
-            format: initialFormat,
-          })
-        }
-      >
-        <Text style={styles.name}>City Arena</Text>
-        <Text style={styles.desc}>5v5 • 2 km away</Text>
-      </Pressable>
+      {FIELDS.map((field) => {
+        const startingFormat = field.allowedFormats?.includes(initialFormat)
+          ? initialFormat
+          : field.allowedFormats?.[0] ?? "5v5";
 
-      <Pressable
-        style={styles.card}
-        onPress={() =>
-          navigation.navigate("FieldDetails", {
-            field: {
-              name: "Downtown Pitch",
-              meta: "5v5 • 4 km away",
-              pricePerHour: 70,
-            },
-            format: initialFormat,
-          })
-        }
-      >
-        <Text style={styles.name}>Downtown Pitch</Text>
-        <Text style={styles.desc}>5v5 • 4 km away</Text>
-      </Pressable>
+        return (
+          <Pressable
+            key={field.id}
+            style={styles.card}
+            onPress={() =>
+              navigation.navigate("FieldDetails", {
+                field,
+                format: startingFormat,
+              })
+            }
+          >
+            <Text style={styles.name}>{field.name}</Text>
+            <Text style={styles.desc}>{field.meta}</Text>
+            {field.allowedFormats?.length ? (
+              <Text style={styles.formatsText}>
+                Formats: {field.allowedFormats.join(", ")}
+              </Text>
+            ) : null}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -75,6 +87,12 @@ const styles = StyleSheet.create({
   desc: {
     color: "#9CA3AF",
     marginTop: 4,
+  },
+
+  formatsText: {
+    color: "#6B7280",
+    marginTop: 6,
+    fontSize: 12,
   },
 });
 
