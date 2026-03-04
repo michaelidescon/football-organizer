@@ -55,7 +55,11 @@ export default function FieldDetailsScreen({ route, navigation }) {
               styles.primaryButton,
               pressed && styles.buttonPressed,
             ]}
-            onPress={() => Alert.alert("Next: Create Match screen")}
+            onPress={() =>
+              navigation.navigate("CreateMatch", {
+                field,
+              })
+            }
           >
             <Text style={styles.primaryButtonText}>Create match here</Text>
           </Pressable>
