@@ -1,20 +1,34 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 
-export default function FieldsScreen() {
+export default function FieldsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Select Field</Text>
 
-      <View style={styles.card}>
+      <Pressable
+        style={styles.card}
+        onPress={() =>
+          navigation.navigate("FieldDetails", {
+            field: { name: "City Arena", meta: "5v5 • 2 km away" },
+          })
+        }
+      >
         <Text style={styles.name}>City Arena</Text>
         <Text style={styles.desc}>5v5 • 2 km away</Text>
-      </View>
+      </Pressable>
 
-      <View style={styles.card}>
+      <Pressable
+        style={styles.card}
+        onPress={() =>
+          navigation.navigate("FieldDetails", {
+            field: { name: "Downtown Pitch", meta: "5v5 • 4 km away" },
+          })
+        }
+      >
         <Text style={styles.name}>Downtown Pitch</Text>
         <Text style={styles.desc}>5v5 • 4 km away</Text>
-      </View>
+      </Pressable>
     </View>
   );
 }
